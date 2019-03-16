@@ -7,43 +7,43 @@ class NegociacaoController {
         this._inputValor = $('#valor');
 
         const self = this;
-        this._negociacoes = new Proxy(new Negociacoes(), {
-            get(target, prop, receiver) {
-                if(typeof(target[prop]) == typeof(Function) &&
-                    ['adiciona', 'esvazia'].includes(prop)) {
-                    
-                        return function() {
-                            console.log(`${prop} disparou a armadilha`);
-                            target[prop].apply(target, arguments);
-                            self._negociacoesView.update(target);
-                        }
-                } else {
-                    return target[prop];
-                }
-            }
-        });
+        this._negociacoes = new Bind(
+            new Negociacoes(),
+            new NegociacoesView('#negociacoes'),
+            'adiciona', 'esvazia'
+        );
 
-        this._negociacoesView = new NegociacoesView('#negociacoes');
-
-        this._negociacoesView.update(this._negociacoes);
-
-        this._mensagem = new Mensagem();
-        this._mensagemView = new MensagemView('#mensagemView');
-        this._mensagemView.update(this._mensagem);
+        this._mensagem = new Bind(
+            new Mensagem(),
+            new MensagemView('#mensagemView'),
+            'texto'
+        );
     }
 
     adiciona(event) {
-        event.preventDefault();
-        this._negociacoes.adiciona(this._criarNegociacao());
-        this._mensagem.texto = 'Negociação adicionada com sucesso';
-        this._mensagemView.update(this._mensagem);
-        this._limpaFormulario();
+        try {
+
+            event.preventDefault();
+            this._negociacoes.adiciona(this._criarNegociacao());
+            this._mensagem.texto = 'Negociação adicionada com sucesso';
+            this._limpaFormulario();
+
+        } catch(err) {
+            console.log(err);
+            console.log(err.stack);
+
+            if(err instanceof DataInvalidaException) {
+                this._mensagem.texto = err.message;
+            } else {
+                this._mensagem.texto = 'Um erro não esperado aconteceu. Entre em contato com o suporte';
+            }
+            
+        }
     }
 
     apaga() {
         this._negociacoes.esvazia();
         this._mensagem.texto = 'Negociações apagadas com sucesso';
-        this._mensagemView.update(this._mensagem);
     }
 
     _limpaFormulario() {
