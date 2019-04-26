@@ -1,5 +1,15 @@
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap-theme.css';
+
+import 'bootstrap/js/modal.js';
+import '../css/meucss.css';
+
 import { NegociacaoController } from './controllers/NegociacaoController.js';
 import { Negociacao } from './domain/index.js';
+
+$('h1').on('click', () => alert('Foi clicado'));
+console.log('Função adicionada pelo bootstrap:');
+console.log($('h1').modal);
 
 const controller = new NegociacaoController();
 
@@ -16,5 +26,5 @@ const config = {
   body
 }
 
-fetch('/negociacoes', config)
+fetch('http://localhost:3000/negociacoes', config)
   .then(() => console.log('Dado enviado com sucesso'));
